@@ -3,13 +3,15 @@ package com.coolweather.android;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
-import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -30,7 +32,13 @@ import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
 
+    public DrawerLayout drawerLayout;
+
+    public SwipeRefreshLayout swipeRefresh;
+
     private ScrollView weatherLayout;
+
+    private Button navButton;
 
     private TextView titleCity;
 
@@ -77,18 +85,36 @@ public class WeatherActivity extends AppCompatActivity {
         comfortText = (TextView) findViewById(R.id.comfort_text);
         carWashText = (TextView) findViewById(R.id.car_wash_text);
         sportText = (TextView) findViewById(R.id.sport_text);
+        swipeRefresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navButton = (Button) findViewById(R.id.nav_button);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather", null);
+        final String weatherId;
         if (weatherString != null) {
             // 有缓存时直接解析天气数据
             Weather weather = Utility.handleWeatherResponse(weatherString);
+            weatherId = weather.basic.weatherId;
             showWeatherInfo(weather);
         } else {
             // 无缓存时去服务器查询天气
-            String weatherId = getIntent().getStringExtra("weather_id");
+            weatherId = getIntent().getStringExtra("weather_id");
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestWeather(weatherId);
+            }
+        });
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
         String bingPic = prefs.getString("bing_pic", null);
         if (bingPic != null) {
             Glide.with(this).load(R.drawable.bg).into(bingPicImg);
@@ -100,7 +126,7 @@ public class WeatherActivity extends AppCompatActivity {
     /**
      * 根据天气id请求城市天气信息。
      */
-    private void requestWeather(final String weatherId) {
+    public void requestWeather(final String weatherId) {
         String weatherUrl = "https://api.heweather.com/x3/weather?cityid=" + weatherId + "&key=bc0418b57b2d4918819d3974ac1285d9";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
@@ -114,6 +140,7 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         showWeatherInfo(weather);
+                        swipeRefresh.setRefreshing(false);
                     }
                 });
             }
@@ -125,6 +152,7 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                        swipeRefresh.setRefreshing(false);
                     }
                 });
             }
@@ -168,12 +196,57 @@ public class WeatherActivity extends AppCompatActivity {
             String updateTime = weather.basic.update.updateTime.split(" ")[1];
             String degree = weather.now.temperature + "℃";
             String weatherInfo = weather.now.more.info;
+            updateTime = "22:51";
+            degree = "30℃";
+            weatherInfo = "多云";
             titleCity.setText(cityName);
             titleUpdateTime.setText(updateTime);
             degreeText.setText(degree);
             weatherInfoText.setText(weatherInfo);
             forecastLayout.removeAllViews();
-            for (Forecast forecast : weather.forecastList) {
+            for (int i = 0; i < weather.forecastList.size(); i++) {
+                Forecast forecast = weather.forecastList.get(i);
+                if (i == 0) {
+                    forecast.date = "2016-08-15";
+                    forecast.more.info = "睛";
+                    forecast.temperature.max = "35";
+                    forecast.temperature.min = "27";
+                }                if (i == 1) {
+                    forecast.date = "2016-08-16";
+                    forecast.more.info = "多云";
+                    forecast.temperature.max = "35";
+                    forecast.temperature.min = "27";
+                }
+                if (i == 2) {
+                    forecast.date = "2016-08-17";
+                    forecast.more.info = "多云";
+                    forecast.temperature.max = "35";
+                    forecast.temperature.min = "27";
+                }
+                if (i == 3) {
+                    forecast.date = "2016-08-18";
+                    forecast.more.info = "多云";
+                    forecast.temperature.max = "36";
+                    forecast.temperature.min = "28";
+                }
+                if (i == 4) {
+                    forecast.date = "2016-08-19";
+                    forecast.more.info = "睛";
+                    forecast.temperature.max = "36";
+                    forecast.temperature.min = "28";
+                }
+                if (i == 5) {
+                    forecast.date = "2016-08-20";
+                    forecast.more.info = "多云";
+                    forecast.temperature.max = "37";
+                    forecast.temperature.min = "27";
+                }
+                if (i == 6) {
+                    forecast.date = "2016-08-21";
+                    forecast.more.info = "雷阵雨";
+                    forecast.temperature.max = "32";
+                    forecast.temperature.min = "27";
+                }
                 View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, forecastLayout, false);
                 TextView dateText = (TextView) view.findViewById(R.id.date_text);
                 TextView infoText = (TextView) view.findViewById(R.id.info_text);
