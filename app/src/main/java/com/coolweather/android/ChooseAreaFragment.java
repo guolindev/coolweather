@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -272,4 +271,24 @@ public class ChooseAreaFragment extends Fragment {
         }
     }
 
+    /**
+     * 托管此 fragment 的 activity 可以调用此方法, 以便给此 fragment 一个处理点击返回按钮的机会
+     * @return true 表示此 fragment 处理了点击返回按钮的事件, activity 可以不处理了, false 表示 fragment 不处理
+     */
+    public boolean onBackPressed() {
+        if (currentLevel == LEVEL_COUNTY) {
+            currentLevel = LEVEL_CITY;
+            queryCities();
+        } else if (currentLevel == LEVEL_CITY) {
+            currentLevel = LEVEL_PROVINCE;
+            queryProvinces();
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
 }
