@@ -50,13 +50,13 @@
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
-        <fragment
-            android:id="@+id/choose_area_fragment"
-            android:name="com.coolweather.android.ChooseAreaFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <FrameLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/fragment_container"
             android:layout_gravity="start"
-            />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </FrameLayout>
 
     </android.support.v4.widget.DrawerLayout>
 

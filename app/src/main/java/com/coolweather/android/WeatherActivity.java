@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -66,6 +67,8 @@ public class WeatherActivity extends AppCompatActivity {
 
     private String mWeatherId;
 
+    private ChooseAreaFragment chooseAreaFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +109,15 @@ public class WeatherActivity extends AppCompatActivity {
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(mWeatherId);
         }
+
+        // 通过代码来托管 fragment
+        FragmentManager fm = getSupportFragmentManager();
+        chooseAreaFragment = (ChooseAreaFragment) fm.findFragmentById(R.id.fragment_container);
+        if (chooseAreaFragment == null) {
+            chooseAreaFragment = new ChooseAreaFragment();
+            fm.beginTransaction().add(R.id.fragment_container, chooseAreaFragment).commit();
+        }
+
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -235,4 +247,19 @@ public class WeatherActivity extends AppCompatActivity {
         startService(intent);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            if (chooseAreaFragment.getCurrentLevel() == ChooseAreaFragment.LEVEL_PROVINCE) {
+                // 在 choose area 时如果是省一级的, 点击返回时关闭 drawer 视图
+                drawerLayout.closeDrawers();
+            } else {
+                // 如果是市或者区一级的, 就让 fragment 处理点击返回按钮事件, 即返回更大一级的 choose area 界面
+                chooseAreaFragment.onBackPressed();
+            }
+        } else {
+            // drawer 未显示, 则直接退出 app
+            super.onBackPressed();
+        }
+    }
 }
