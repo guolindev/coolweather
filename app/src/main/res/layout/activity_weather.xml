@@ -9,14 +9,16 @@
         android:id="@+id/bing_pic_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"/>
 
-    <android.support.v4.widget.DrawerLayout
+    <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v4.widget.SwipeRefreshLayout
+
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -34,30 +36,20 @@
                     android:layout_height="wrap_content"
                     android:fitsSystemWindows="true">
 
-                    <include layout="@layout/title" />
-
-                    <include layout="@layout/now" />
-
-                    <include layout="@layout/forecast" />
-
-                    <include layout="@layout/aqi" />
-
-                    <include layout="@layout/suggestion" />
+                    <include layout="@layout/title"/>
+                    <include layout="@layout/now"/>
+                    <include layout="@layout/forecast"/>
+                    <include layout="@layout/aqi"/>
+                    <include layout="@layout/suggestion"/>
 
                 </LinearLayout>
-
             </ScrollView>
-
-        </android.support.v4.widget.SwipeRefreshLayout>
-
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         <fragment
             android:id="@+id/choose_area_fragment"
             android:name="com.coolweather.android.ChooseAreaFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="start"
-            />
-
-    </android.support.v4.widget.DrawerLayout>
-
+            android:layout_gravity="start"/>
+    </androidx.drawerlayout.widget.DrawerLayout>
 </FrameLayout>
